@@ -4,6 +4,7 @@ import { prisma } from './db';
 import { generateApiKey } from './keys';
 import { revalidatePath } from 'next/cache';
 import { auth } from './auth';
+import { logger } from './logger';
 
 // ──────────────────────────────────────────────
 // Projects
@@ -29,7 +30,7 @@ export async function createProject(data: { name: string; description?: string }
     revalidatePath('/');
     return project;
   } catch (err) {
-    console.error('[createProject]', err);
+    logger.error('Failed in createProject', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -44,7 +45,7 @@ export async function getProject(slug: string) {
       },
     });
   } catch (err) {
-    console.error('[getProject]', err);
+    logger.error('Failed in getProject', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -62,7 +63,7 @@ export async function listProjects() {
       },
     });
   } catch (err) {
-    console.error('[listProjects]', err);
+    logger.error('Failed in listProjects', { error: err instanceof Error ? err.message : 'Unknown error' });
     return [];
   }
 }
@@ -72,7 +73,7 @@ export async function deleteProject(id: string) {
     await prisma.project.delete({ where: { id } });
     revalidatePath('/');
   } catch (err) {
-    console.error('[deleteProject]', err);
+    logger.error('Failed in deleteProject', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -133,7 +134,7 @@ export async function createApiKey(data: {
     // Return the full key only once at creation time
     return { ...apiKey, fullKey: key };
   } catch (err) {
-    console.error('[createApiKey]', err);
+    logger.error('Failed in createApiKey', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -146,7 +147,7 @@ export async function revokeApiKey(id: string) {
     });
     revalidatePath('/');
   } catch (err) {
-    console.error('[revokeApiKey]', err);
+    logger.error('Failed in revokeApiKey', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -156,7 +157,7 @@ export async function deleteApiKey(id: string) {
     await prisma.apiKey.delete({ where: { id } });
     revalidatePath('/');
   } catch (err) {
-    console.error('[deleteApiKey]', err);
+    logger.error('Failed in deleteApiKey', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -181,7 +182,7 @@ export async function getApiKeyUsage(
     const totalPages = Math.ceil(total / pageSize);
     return { logs, total, page, pageSize, totalPages };
   } catch (err) {
-    console.error('[getApiKeyUsage]', err);
+    logger.error('Failed in getApiKeyUsage', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -214,7 +215,7 @@ export async function simulateUsage(apiKeyId: string) {
 
     revalidatePath('/');
   } catch (err) {
-    console.error('[simulateUsage]', err);
+    logger.error('Failed in simulateUsage', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }
@@ -234,7 +235,7 @@ export async function getStats() {
 
     return { projectCount, keyCount, activeKeyCount, totalRequests };
   } catch (err) {
-    console.error('[getStats]', err);
+    logger.error('Failed in getStats', { error: err instanceof Error ? err.message : 'Unknown error' });
     throw new Error(err instanceof Error ? err.message : 'Operation failed');
   }
 }

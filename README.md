@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[**Live Demo →**](https://apivault.spencerstiles.dev) | [**Hosted ($15/mo) →**](https://cal.com/spencerstiles)
+[**Live Demo →**](https://apivault.spencerstiles.com) | [**Hosted ($15/mo) →**](https://cal.com/spencerstiles)
 
 ---
 
