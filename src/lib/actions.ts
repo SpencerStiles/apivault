@@ -3,6 +3,7 @@
 import { prisma } from './db';
 import { generateApiKey } from './keys';
 import { revalidatePath } from 'next/cache';
+import { auth } from './auth';
 
 // ──────────────────────────────────────────────
 // Projects
@@ -10,6 +11,9 @@ import { revalidatePath } from 'next/cache';
 
 export async function createProject(data: { name: string; description?: string }) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error('Unauthorized');
+
     const slug = data.name
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
@@ -19,7 +23,7 @@ export async function createProject(data: { name: string; description?: string }
       + '-' + Math.random().toString(36).slice(2, 7);
 
     const project = await prisma.project.create({
-      data: { name: data.name, description: data.description ?? '', slug },
+      data: { name: data.name, description: data.description ?? '', slug, userId: session.user.id },
     });
 
     revalidatePath('/');
@@ -47,7 +51,11 @@ export async function getProject(slug: string) {
 
 export async function listProjects() {
   try {
+    const session = await auth().catch(() => null);
+    if (!session?.user?.id) return [];
+
     return prisma.project.findMany({
+      where: { userId: session.user.id },
       orderBy: { updatedAt: 'desc' },
       include: {
         _count: { select: { apiKeys: true } },
@@ -55,7 +63,7 @@ export async function listProjects() {
     });
   } catch (err) {
     console.error('[listProjects]', err);
-    throw new Error(err instanceof Error ? err.message : 'Operation failed');
+    return [];
   }
 }
 
